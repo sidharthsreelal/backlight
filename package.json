@@ -2,6 +2,7 @@
   "name": "backlight",
   "private": true,
   "version": "0.1.0",
+  "description": "A system-tray wellness app for mood check-ins, breathing, ambient sounds, music, and AI therapy sessions.",
   "type": "module",
   "scripts": {
     "dev": "vite",

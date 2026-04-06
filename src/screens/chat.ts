@@ -1,7 +1,6 @@
 import { getUserProfile } from '../user-profile';
 import { saveChatHistory, type ChatEntry } from '../chat-history';
 
-const _appToken = '' as string;
 
 interface ChatMessage {
     role: 'user' | 'assistant';
@@ -63,9 +62,6 @@ function buildSystemContext(mood: string): string {
         context += ` Therapist behavior constraint: You are 'The Challenging Insight Therapist'. Respectfully challenge assumptions, encourage self-awareness, and gently push the user to reflect more deeply.`;
     } else if (profile.therapistType === 'custom' && profile.therapist) {
         context += ` The user has provided custom instructions for how the therapist should behave: ${profile.therapist}.`;
-    } else if (profile.therapist && !profile.therapistType) {
-        // Fallback for older stored profiles
-        context += ` The user has provided custom instructions for how the therapist should behave: ${profile.therapist}.`;
     }
 
     context += ` ${SYSTEM_PROMPT}]`;
@@ -73,7 +69,7 @@ function buildSystemContext(mood: string): string {
 }
 
 async function callAI(messages: ChatMessage[], mood: string): Promise<string> {
-    const apiKey = _appToken;
+    const apiKey = localStorage.getItem('backlight_api_key') || '';
     if (!apiKey) throw new Error('NO_KEY');
 
     if (activeController) {
@@ -280,7 +276,6 @@ export function renderChatScreen(mood: string, onBack: () => void): HTMLElement 
                 errorBubble.textContent = "Sorry, I couldn't connect right now. Check your internet connection and try again.";
             }
             messagesContainer.appendChild(errorBubble);
-            console.error('Chat error:', err);
         } finally {
             sendBtn.disabled = false;
             input.disabled = false;

@@ -71,40 +71,6 @@ function createPNG(width, height, pixels) {
     ]);
 }
 
-function generateIcon(size) {
-    const pixels = new Uint8Array(size * size * 4);
-    const cx = size / 2, cy = size / 2;
-    const maxR = size / 2;
-
-    for (let y = 0; y < size; y++) {
-        for (let x = 0; x < size; x++) {
-            const i = (y * size + x) * 4;
-            const dx = x - cx, dy = y - cy;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            const norm = dist / maxR;
-
-            // Dark background
-            let r = 8, g = 8, b = 16;
-
-            // Glowing orb in center
-            if (norm < 1.0) {
-                const glow = Math.max(0, 1 - norm);
-                const innerGlow = Math.max(0, 1 - norm * 3);
-
-                r = Math.min(255, r + Math.floor(91 * glow * 0.5 + 200 * innerGlow));
-                g = Math.min(255, g + Math.floor(80 * glow * 0.3 + 180 * innerGlow));
-                b = Math.min(255, b + Math.floor(239 * glow * 0.6 + 255 * innerGlow));
-            }
-
-            pixels[i] = r;
-            pixels[i + 1] = g;
-            pixels[i + 2] = b;
-            pixels[i + 3] = 255;
-        }
-    }
-
-    return createPNG(size, pixels);
-}
 
 const outDir = path.join(__dirname, 'src-tauri', 'icons');
 fs.mkdirSync(outDir, { recursive: true });

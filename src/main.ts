@@ -10,8 +10,8 @@ import { renderArtistPrefsScreen } from './screens/artist-prefs';
 import { renderLikedSongsScreen } from './screens/liked-songs-screen';
 import { renderProfileScreen } from './screens/profile-screen';
 import { renderChatHistoryOverlay } from './screens/chat-history-screen';
-import { renderSessionLog } from './sessions';
-import { addSession } from './sessions';
+import { renderSessionLog, addSession } from './sessions';
+
 
 type Screen = 'mood' | 'activities' | 'breathing' | 'soundscape' | 'music' | 'chat' | 'artist-prefs' | 'liked-songs' | 'profile';
 

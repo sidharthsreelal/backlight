@@ -70,8 +70,8 @@ export function renderLikedSongsScreen(onBack: () => void): HTMLElement {
           title = data.title || title;
           artist = data.author_name || artist;
         }
-      } catch (err) {
-        console.error("Failed to fetch YouTube metadata:", err);
+      } catch {
+        // oEmbed unavailable — fallback title/artist used
       }
 
       const song: LikedSong = {

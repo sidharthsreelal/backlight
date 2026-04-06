@@ -1,4 +1,3 @@
-// Session logging module
 export interface SessionLog {
     id: string;
     timestamp: string;

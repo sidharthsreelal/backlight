@@ -1,75 +1,81 @@
-# backlight
+# Backlight
 
-> A system tray pit stop for mental wellness. Micro-sessions that close themselves so you can get back to what matters.
+A small desktop app that lives in your system tray and helps you decompress. You pick a mood, pick an activity, and it gets out of your way. That's it.
 
----
+Built with Tauri — so it's a ~4 MB native binary, not a 300 MB Electron app.
 
-Most wellness apps want your attention. **backlight** is the opposite. It lives quietly in your system tray, opens when you need a moment, and closes itself when the session ends. No lingering tabs, no guilt about closing it, no disruption to your flow.
+## What it does
 
----
+When you open it (or click the tray icon), you see a mood check-in screen. Pick how you're feeling and you get a set of activities:
 
-## Features
+- **Breathing** — guided 4-7-8 breathing exercise with a visual circle. Auto-completes at 3 minutes.
+- **Ambient sounds** — rain, ocean, or forest, with a countdown timer. Loops until the timer ends.
+- **Music** — searches YouTube Music for songs by your saved artists using a local Python script. Streams them via the YouTube IFrame player. You can like songs and they get saved to a Liked Songs list you can replay from.
+- **AI chat** — a short therapy-style chat session, powered by either Gemini or Groq. The model adapts to your selected mood. You can set a therapist persona in your profile (curious, reflective, practical, calm, challenging, or custom).
 
-### → Mood-based activity selection
-Tell backlight how you're feeling. It surfaces activities matched to your current state — whether you need to decompress, reset, or just breathe.
+Session history is tracked locally. Chat history is saved and browsable.
 
-### → Guided breathing exercises
-Visual, timer-driven breathing sessions using proven methods like the 4-7-8 technique. A gentle rhythm to follow, a clear signal when you're done.
-
-### → Ambient soundscapes
-Forest, ocean, rain — layered ambient sounds with per-track volume controls. Set the mix that works for you and let it fade into the background.
-
-### → Music integration
-A built-in music player that searches and plays music based on your preferences, powered by a local Python script. Save favorite artists, like songs, and let your taste shape every session.
-
-### → AI therapist chat
-An integrated chat interface for emotional support and guidance. Not a replacement for real help — but a low-friction place to process thoughts when you need it most. Conversation history is saved so context carries across sessions.
-
-### → Session tracking
-Every completed activity is automatically logged. Your profile tracks total session times and gives you a quiet sense of progress over time.
-
-### → Custom titlebar
-A seamless, native-feeling window that looks and behaves exactly the way it should — no OS chrome getting in the way.
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | TypeScript, CSS, HTML, Vite |
-| Desktop shell | Tauri 2 (Rust) |
-| Music backend | Python |
-
----
-
-## Getting Started
+## Setup
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18+)
-- [Rust](https://www.rust-lang.org/tools/install) (stable toolchain)
-- [Python 3](https://www.python.org/) (for music integration)
-- Tauri CLI prerequisites for your OS — see the [Tauri setup guide](https://tauri.app/start/prerequisites/)
+- [Rust](https://rustup.rs/)
+- [Node.js](https://nodejs.org/) 18+
+- [Tauri CLI v2](https://v2.tauri.app/start/prerequisites/)
+- Python 3 with [ytmusicapi](https://ytmusicapi.readthedocs.io/) installed (`pip install ytmusicapi`) — only needed for the music feature
 
-### Development
+### Running locally
 
 ```bash
-# Clone the repo
-git clone https://github.com/sidharthsreelal/backlight.git
-cd backlight
-
-# Install JS dependencies
 npm install
-
-# Run in development mode
 npm run tauri:dev
 ```
 
-### Production build
+### Building
 
 ```bash
 npm run tauri:build
 ```
 
-The compiled installer/binary will be in `src-tauri/target/release/bundle/`.
+The installer ends up in `src-tauri/target/release/bundle/`.
+
+## API Key
+
+The AI chat feature needs an API key. It's stored in `localStorage` under `backlight_api_key`. You can set it directly in the browser DevTools console for now:
+
+```js
+localStorage.setItem('backlight_api_key', 'your-key-here')
+```
+
+Supports both Groq keys (starting with `gsk_`) and Google Gemini keys. Groq uses `llama-3.3-70b-versatile`; Gemini uses `gemini-2.0-flash-lite`.
+
+## Structure
+
+```
+src/                  # Frontend TypeScript (Vite)
+  screens/            # One file per screen (mood, breathing, soundscape, music, chat, etc.)
+  components/         # Shared UI pieces (titlebar, session-complete overlay)
+  sessions.ts         # Activity session logging (localStorage)
+  chat-history.ts     # Chat history (localStorage)
+  liked-songs.ts      # Liked songs list (localStorage)
+  preferences.ts      # Artist preferences (localStorage)
+  user-profile.ts     # User profile + therapist type (localStorage)
+
+src-tauri/            # Rust backend (Tauri)
+  src/lib.rs          # search_music command, window positioning, tray setup
+  src/tray.rs         # System tray icon + menu
+  scripts/
+    music_search.py   # Python script invoked by the Rust backend for YT Music search
+
+public/audio/         # Bundled ambient audio (rain.mp3, ocean.mp3, forest.mp3)
+```
+
+All user data is stored in `localStorage` — no server, no account, no sync.
+
+## Known issues / limitations
+
+- The API key has no UI to set it yet. DevTools console is the current workaround.
+- Music search requires Python and `ytmusicapi` to be installed separately on the host machine. If Python isn't in PATH, the music feature will show an error.
+- The YouTube player sometimes doesn't autoplay on first load — this is a browser autoplay policy issue that Tauri inherits.
+- Window is fixed at 420×420 and positioned above the taskbar. The position logic assumes a standard taskbar; it might be off on some multi-monitor setups.
+- `generate-icon.cjs` is a one-time dev utility for regenerating the app icons from scratch. It's not part of the build.

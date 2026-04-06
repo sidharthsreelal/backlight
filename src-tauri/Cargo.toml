@@ -2,7 +2,6 @@
 name = "backlight"
 version = "0.1.0"
 description = "A wellness companion that lives in your system tray"
-authors = ["you"]
 edition = "2021"
 
 [lib]
